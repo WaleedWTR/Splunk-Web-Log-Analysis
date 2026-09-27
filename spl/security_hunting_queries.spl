@@ -1,0 +1,25 @@
+# Security hunting examples
+
+# High-volume 404 enumeration
+index=web sourcetype=access_combined status=404
+| stats count AS not_found_requests dc(uri_path) AS unique_paths BY clientip
+| where not_found_requests >= 20
+| sort - not_found_requests
+
+# Suspicious request rate
+index=web sourcetype=access_combined
+| bin _time span=1m
+| stats count AS requests BY _time clientip
+| where requests > 100
+| sort - requests
+
+# Potentially sensitive path access
+index=web sourcetype=access_combined
+| search uri_path IN ("/admin*","/.env*","/wp-admin*","/config*","/backup*")
+| stats count values(uri_path) AS paths BY clientip status
+| sort - count
+
+# Suspicious user agents
+index=web sourcetype=access_combined
+| search useragent="*sqlmap*" OR useragent="*nikto*" OR useragent="*nmap*"
+| table _time clientip method uri_path status useragent
