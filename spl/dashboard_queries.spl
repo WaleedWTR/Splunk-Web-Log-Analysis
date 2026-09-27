@@ -1,0 +1,22 @@
+# Core dashboard queries
+
+# Requests over time
+index=web sourcetype=access_combined
+| timechart span=5m count AS requests
+
+# Top 10 requested pages
+index=web sourcetype=access_combined
+| stats count AS requests BY uri_path
+| sort - requests
+| head 10
+
+# Error rate
+index=web sourcetype=access_combined
+| eval is_error=if(status>=400,1,0)
+| timechart span=5m count AS total sum(is_error) AS errors
+| eval error_rate=round((errors/total)*100,2)
+
+# Status code distribution
+index=web sourcetype=access_combined
+| eval status_class=case(status>=500,"5xx",status>=400,"4xx",status>=300,"3xx",status>=200,"2xx",true(),"other")
+| stats count BY status_class
