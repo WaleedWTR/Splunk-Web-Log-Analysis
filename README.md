@@ -1,47 +1,68 @@
 # Splunk Web Log Analysis
 
-A practical observability and security analytics project showing how web server access logs can be ingested, searched and turned into operational insight in Splunk.
+![Python tests](https://github.com/WaleedWTR/Splunk-Web-Log-Analysis/actions/workflows/python-tests.yml/badge.svg)
+
+A practical observability and security analytics project showing how web server access logs can be ingested, searched, investigated and turned into operational insight in Splunk.
 
 > **Portfolio note:** This repository is a sanitised demonstration project. Sample data and examples are synthetic and contain no employer, government or production information.
 
 ## What this project demonstrates
 
-- Ingesting web access logs into Splunk
-- Building repeatable SPL searches
-- Monitoring traffic and error trends
-- Identifying top requested resources
-- Detecting suspicious request patterns
-- Turning raw events into an operational dashboard
-- Documenting investigation and monitoring workflows
+- ingesting web access logs into Splunk
+- building repeatable SPL searches
+- monitoring traffic and error trends
+- identifying top requested resources
+- detecting suspicious request patterns
+- creating reusable hunting content
+- documenting incident investigation workflows
+- validating sample telemetry with Python
+- testing code automatically with GitHub Actions
 
 ## Architecture
 
 ```text
-Web Server Logs
-      |
-      v
-Splunk Index
-      |
-      +--> Traffic / availability searches
-      +--> Error-rate analysis
-      +--> Security-focused detections
-      |
-      v
-Dashboard + Investigation Workflow
+Synthetic Web Logs
+       |
+       +------------------+
+       |                  |
+       v                  v
+    Splunk              Python
+       |                  |
+       v                  v
+  SPL Analytics      Validation Tests
+       |
+       +--> Availability / traffic
+       +--> HTTP error analysis
+       +--> Security hunting
+       +--> Detection candidates
+       |
+       v
+Dashboard + Investigation Playbook
 ```
 
 ## Repository structure
 
 ```text
 .
-├── README.md
+├── .github/
+│   └── workflows/
+│       └── python-tests.yml
 ├── data/
 │   └── sample_access.log
+├── docs/
+│   ├── detection-engineering-notes.md
+│   └── investigation-playbook.md
+├── scripts/
+│   └── analyse_logs.py
 ├── spl/
 │   ├── dashboard_queries.spl
+│   ├── savedsearches.conf.example
 │   └── security_hunting_queries.spl
-└── docs/
-    └── investigation-playbook.md
+├── tests/
+│   └── test_analyse_logs.py
+├── LICENSE
+├── SECURITY.md
+└── README.md
 ```
 
 ## Core dashboard searches
@@ -84,40 +105,76 @@ index=web sourcetype=access_combined
 | stats count BY status_class
 ```
 
-## Security hunting examples
+## Security hunting
 
-The repository also includes searches for:
+Included examples cover:
 
-- repeated authentication failures
 - high-volume 404 enumeration
-- suspicious user agents
-- unusual request rates by source IP
-- requests to potentially sensitive paths
+- scanner-like user agents
+- access to potentially sensitive paths
+- unusually high request rates by source IP
 
-These are examples for learning and portfolio demonstration, not production-ready detections.
+The queries are deliberately understandable and tunable. They are examples for learning and portfolio demonstration, not production-ready detections.
 
-## How to reproduce
+## Local validation
+
+The Python utility parses the synthetic access log and produces basic traffic and security metrics.
+
+```bash
+python scripts/analyse_logs.py
+```
+
+Run the automated tests with:
+
+```bash
+python -m pip install pytest
+python -m pytest -q
+```
+
+GitHub Actions runs the tests when relevant code or data changes.
+
+## How to reproduce in Splunk
 
 1. Install Splunk Enterprise or use a Splunk lab environment.
 2. Create an index named `web`.
 3. Upload `data/sample_access.log`.
 4. Set the sourcetype to `access_combined` or adjust the SPL to your parser.
 5. Run the searches in `spl/dashboard_queries.spl`.
-6. Add the searches as dashboard panels.
+6. Add appropriate searches as dashboard panels.
 7. Use `spl/security_hunting_queries.spl` for investigation exercises.
+8. Review `spl/savedsearches.conf.example` for disabled alert examples and tune before use.
+
+## Detection engineering approach
+
+A useful detection needs more than a query. Before production use it should have:
+
+- a baseline
+- tuned thresholds
+- known-good exclusions
+- severity and ownership
+- investigation guidance
+- response criteria
+- false-positive review
+- periodic validation
+
+See [Detection Engineering Notes](docs/detection-engineering-notes.md).
+
+## Investigation workflow
+
+The included [Investigation Playbook](docs/investigation-playbook.md) covers evidence capture, triage, correlation and example containment considerations.
 
 ## Skills demonstrated
 
-**Splunk · SPL · Log Analysis · Security Monitoring · Observability · Incident Investigation · Dashboard Design**
+**Splunk · SPL · Log Analysis · Security Monitoring · Detection Engineering · Incident Investigation · Python · GitHub Actions · Dashboard Design**
 
 ## Future improvements
 
-- Add field extractions for custom log formats
-- Add threshold-based alerts
-- Add risk scoring
-- Add geo/IP enrichment
-- Export dashboard configuration as source-controlled XML/JSON
-- Add automated ingestion using Universal Forwarder
+- add field extraction examples for custom log formats
+- add richer synthetic attack scenarios
+- add threshold and risk-based detection examples
+- add geo/IP enrichment guidance
+- export a dashboard definition as source-controlled configuration
+- add Universal Forwarder ingestion examples
 
 ## Disclaimer
 
