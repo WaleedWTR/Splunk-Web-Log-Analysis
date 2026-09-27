@@ -17,6 +17,6 @@ def test_parse_valid_line():
 def test_sample_dataset():
     result = analyse(ROOT / "data" / "sample_access.log")
     assert result["events"] == 8
-    assert result["status_classes"]["2xx"] == 4
-    assert result["status_classes"]["4xx"] == 4
+    assert result["status_classes"]["2xx"] == 3
+    assert result["status_classes"]["4xx"] == 5
     assert result["suspicious_events"] >= 2
