@@ -1,0 +1,17 @@
+# Example only. Review and tune thresholds before any production use.
+
+[Web - High 404 Enumeration]
+search = index=web sourcetype=access_combined status=404 | stats count AS hits dc(uri_path) AS unique_paths BY clientip | where hits >= 20
+cron_schedule = */5 * * * *
+alert_type = number of events
+alert_comparator = greater than
+alert_threshold = 0
+disabled = 1
+
+[Web - Suspicious Scanner User Agent]
+search = index=web sourcetype=access_combined | search useragent="*sqlmap*" OR useragent="*nikto*" OR useragent="*nmap*" | table _time clientip method uri_path status useragent
+cron_schedule = */5 * * * *
+alert_type = number of events
+alert_comparator = greater than
+alert_threshold = 0
+disabled = 1
